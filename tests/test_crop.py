@@ -1,4 +1,5 @@
 import pytest
+
 from convert2dicom.crop import compute_crop_box, global_max_fov
 
 

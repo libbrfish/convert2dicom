@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from convert2dicom.rescale import (
     RescaleError,
     clean_nonfinite,
