@@ -1,4 +1,4 @@
-from nifti2dicom.charset import dcm_str, resolve_codec, resolve_codec_from_term
+from convert2dicom.charset import dcm_str, resolve_codec, resolve_codec_from_term
 
 
 class FakeReader:

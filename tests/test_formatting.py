@@ -1,4 +1,4 @@
-from nifti2dicom.formatting import ds, ds16
+from convert2dicom.formatting import ds, ds16
 
 
 def test_ds_fixed_six_decimals():

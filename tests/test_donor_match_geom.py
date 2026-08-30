@@ -1,5 +1,5 @@
 import pytest
-from nifti2dicom.donor_match_geom import compute_donor_frame_locs, compute_png_locs
+from convert2dicom.donor_match_geom import compute_donor_frame_locs, compute_png_locs
 
 
 def test_compute_donor_frame_locs_basic():

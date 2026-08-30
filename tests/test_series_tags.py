@@ -1,4 +1,4 @@
-from nifti2dicom.series_tags import (
+from convert2dicom.series_tags import (
     MR_SOP_CLASS,
     SC_SOP_CLASS,
     build_common_series_tags,
@@ -16,7 +16,7 @@ def test_copy_donor_tags_omits_absent_tags():
 
 
 def test_copy_donor_tags_preserves_order():
-    from nifti2dicom.series_tags import TAGS_TO_COPY
+    from convert2dicom.series_tags import TAGS_TO_COPY
 
     donor = {k: f"val-{i}" for i, k in enumerate(TAGS_TO_COPY)}
     result = copy_donor_tags(lambda k: donor.get(k))

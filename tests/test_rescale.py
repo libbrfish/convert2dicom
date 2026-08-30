@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from nifti2dicom.rescale import (
+from convert2dicom.rescale import (
     RescaleError,
     clean_nonfinite,
     compute_label_rescale,

@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 import pydicom
-from nifti2dicom.cli import main
+from convert2dicom.cli import main
 
 
 def _read_series(dcm_dir):

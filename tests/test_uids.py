@@ -1,4 +1,4 @@
-from nifti2dicom.uids import (
+from convert2dicom.uids import (
     make_series_instance_uid,
     make_sop_instance_uid,
     resolve_study_uid,

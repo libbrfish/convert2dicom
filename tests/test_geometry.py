@@ -1,5 +1,5 @@
 import pytest
-from nifti2dicom.geometry import (
+from convert2dicom.geometry import (
     axis_offset_and_dir,
     compute_slice_geometry,
     cross3,

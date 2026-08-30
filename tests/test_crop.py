@@ -1,5 +1,5 @@
 import pytest
-from nifti2dicom.crop import compute_crop_box, global_max_fov
+from convert2dicom.crop import compute_crop_box, global_max_fov
 
 
 def test_global_max_fov_picks_largest_axis():
