@@ -66,7 +66,9 @@ def test_label_rescale_integers_always_converts():
 
 def test_label_rescale_rounds_non_integers_and_flags_it():
     arr = np.array([0.0, 1.4, 2.6])
-    img_int16, _slope, _intercept, was_non_integer = compute_label_rescale(arr, 0.0, 2.6)
+    img_int16, _slope, _intercept, was_non_integer = compute_label_rescale(
+        arr, 0.0, 2.6
+    )
     assert was_non_integer is True
     assert np.array_equal(img_int16, np.array([0, 1, 3], dtype=np.int16))
 
