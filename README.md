@@ -5,16 +5,13 @@ donor DICOM for patient/study metadata and (optionally) a NIfTI underlay for
 spatially-correct geometry when the input is a directory of rendered PNG
 screenshots (e.g. mrview captures).
 
-This is a refactor of a single ~750-line script into a small, independently
-tested package. Behavior is preserved except for the bug fixes listed below.
-
 ## Running it
 
 ```
-python3 convert2dicom_convert.py [options] <nifti|tiff|png_dir> <donor.dcm> <out_dicom_dir>
+python3 convert2dicom.py [options] <nifti|tiff|png_dir> <donor.dcm> <out_dicom_dir>
 ```
 
-Same options as before (`-s/--seriesdescription`, `-n/--seriesnumber`,
+Options (`-s/--seriesdescription`, `-n/--seriesnumber`,
 `-p/--pixelspacing`, `-u/--underlay`, `-o/--plane`, `-M/--match-donor`,
 `-q/--quantitative`, `--label`, `--units`, `--window-headroom`, `-v/--verbose`).
 `python3 convert2dicom_convert.py -h` prints the full help.
@@ -75,61 +72,5 @@ I/O-adjacent (thin wrappers around SimpleITK/pydicom, orchestration):
 | `pipeline_tra_cor.py` | TRA/COR PNG mode (geometry from the underlay) |
 | `cli.py` | Argument parsing + orchestration -- picks a mode and calls into the above |
 
-`convert2dicom_convert.py` at the repo root is a thin executable wrapper so the
+`convert2dicom.py` at the repo root is a thin executable wrapper so the
 tool can still be run the same way as the original single-file script.
-
-## Bugs found and fixed during the refactor
-
-1. **Syntax error.** The original had a stray trailing `:` after the final
-   `_attach_modality_lut(...)` call in `main()`, which is a `SyntaxError` --
-   the script as given could not run at all in quantitative/label mode (or
-   really, at all, since it's a module-level syntax error).
-
-2. **Label mode silently skipped its own core step.** `img_int16`,
-   `rescale_slope`, and `rescale_intercept` were assigned only *inside* the
-   "values aren't integers, rounding" warning branch:
-   ```python
-   if not np.allclose(img_data, np.round(img_data)):
-       print("Warning: --label given but values are not integers; rounding")
-       img_int16 = np.round(img_data).astype(np.int16)
-       rescale_slope, rescale_intercept = 1.0, 0.0
-       print(f"Label mode: ...")
-   ```
-   For an already-integer label map -- the normal case -- none of those
-   variables were ever set, so the script would crash with a `NameError`
-   later. Fixed in `pipeline_standard.convert_nifti_to_int16` /
-   `rescale.compute_label_rescale`: the int16 conversion and slope/intercept
-   assignment always run; only the warning is conditional.
-
-3. **Quantitative mode's log message never printed for normal data.** The
-   `'Quantitative mode: [...] -> int16, slope=... intercept=...'` print was
-   nested under the `_peak == 0` (all-zero) branch only, so it silently never
-   fired for ordinary non-zero data -- the opposite of what the message and
-   its indentation level suggested. Fixed the same way: the print happens
-   once, unconditionally, in the caller.
-
-4. **Inconsistent "no StudyInstanceUID" handling.** The plain NIfTI/TIFF path
-   printed `Warning: donor has no StudyInstanceUID; generating one` when the
-   donor lacked one; the two PNG-screenshot paths (donor-match SAG, TRA/COR)
-   silently generated a UID in the exact same situation with no warning.
-   Unified in `uids.resolve_study_uid`, used by all three write paths, which
-   always calls the `on_warning` callback.
-
-None of these change output for inputs that previously "worked" end-to-end
-(bugs 2 and 3 only affected code paths that would have crashed or under-logged;
-bug 4 only affects a printed warning). Bug 1 means the original script could
-not run as pasted, so there's no prior "working" behavior to preserve there.
-
-## Notes / things I did not change
-
-- UID formats/roots (`1.2.826.0.1.3680043.2.1125...`, KU Leuven's DICOM root)
-  are unchanged.
-- The three write paths (standard / donor-match SAG / TRA-COR) still build
-  their per-instance metadata somewhat differently (e.g. exactly which tags
-  get a per-slice vs. per-series value) -- I consolidated the genuinely
-  shared pieces (tag copying, common series tags, UID generation) but did not
-  force full byte-for-byte identical code paths where the original didn't
-  have them, to avoid changing output for cases that currently work.
-- I did not add DICOM validity checking beyond what the original had (e.g.
-  no VR-length validation on copied donor tags beyond what pydicom/GDCM
-  already enforce on write).
